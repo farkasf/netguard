@@ -1,0 +1,26 @@
+# NetGuard FastAPI/Uvicorn dashboard + API (unprivileged).
+#
+# Install:
+#   sudo cp deploy/netguard-api.service /etc/systemd/system/
+#   sudo systemctl daemon-reload && sudo systemctl enable --now netguard-api
+#
+# Shares the SQLite file with the runner; WAL mode handles concurrent r/w.
+[Unit]
+Description=NetGuard API and dashboard
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=netguard
+Group=netguard
+WorkingDirectory=/opt/netguard
+Environment=NETGUARD_API_HOST=0.0.0.0
+Environment=NETGUARD_API_PORT=8000
+NoNewPrivileges=true
+ExecStart=/opt/netguard/.venv/bin/python -m netguard.api.app
+Restart=on-failure
+RestartSec=3
+
+[Install]
+WantedBy=multi-user.target

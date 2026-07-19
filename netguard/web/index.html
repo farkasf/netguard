@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>NetGuard — Network Anomaly Detector</title>
+  <link rel="stylesheet" href="/style.css" />
+</head>
+<body>
+  <!-- GitHub-style global app header -->
+  <header class="AppHeader">
+    <div class="AppHeader-bar">
+      <a class="AppHeader-logo" href="/" aria-label="NetGuard">
+        <!-- Octicon: shield-check -->
+        <svg viewBox="0 0 16 16" width="22" height="22" aria-hidden="true">
+          <path fill="currentColor" d="M7.467.133a1.748 1.748 0 0 1 1.066 0l5.25 1.68A1.75 1.75 0 0 1 15 3.48V7c0 1.566-.32 3.182-1.303 4.682-.983 1.498-2.585 2.813-5.032 3.855a1.697 1.697 0 0 1-1.33 0c-2.447-1.042-4.049-2.357-5.032-3.855C1.32 10.182 1 8.566 1 7V3.48a1.75 1.75 0 0 1 1.217-1.667Zm.61 1.429a.25.25 0 0 0-.153 0l-5.25 1.68a.25.25 0 0 0-.174.238V7c0 1.358.275 2.666 1.057 3.86.784 1.194 2.121 2.34 4.366 3.297a.196.196 0 0 0 .154 0c2.245-.957 3.582-2.103 4.366-3.297C13.225 9.666 13.5 8.358 13.5 7V3.48a.251.251 0 0 0-.174-.237l-5.25-1.68ZM11.28 6.28l-3.5 3.5a.75.75 0 0 1-1.06 0l-1.5-1.5a.749.749 0 0 1 .326-1.275.749.749 0 0 1 .734.215l.97.97 2.97-2.97a.751.751 0 0 1 1.06 1.06Z"/>
+        </svg>
+      </a>
+      <nav class="AppHeader-context" aria-label="breadcrumb">
+        <span class="AppHeader-owner">netguard</span>
+        <span class="AppHeader-sep">/</span>
+        <span class="AppHeader-repo">dashboard</span>
+      </nav>
+
+      <div class="AppHeader-actions">
+        <span class="meta-item">model <strong id="model-version" class="mono">—</strong></span>
+        <span class="meta-item">uptime <strong id="uptime" class="mono">—</strong></span>
+        <span class="State" id="health-dot" title="API health">
+          <span class="State-dot"></span>
+          <span id="health-text">checking…</span>
+        </span>
+        <button id="retrain-btn" class="btn btn-primary">
+          <svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true">
+            <path fill="currentColor" d="M8 2.5a5.487 5.487 0 0 0-4.131 1.869l1.204 1.204A.25.25 0 0 1 4.896 7H1.25A.25.25 0 0 1 1 6.75V3.104a.25.25 0 0 1 .427-.177l1.38 1.38A7.001 7.001 0 0 1 14.95 7.16a.75.75 0 1 1-1.49.178A5.501 5.501 0 0 0 8 2.5ZM1.05 8.84a.75.75 0 0 1 .833.656 5.501 5.501 0 0 0 9.961 2.34l-1.204-1.204a.25.25 0 0 1 .177-.426h3.646a.25.25 0 0 1 .25.25v3.646a.25.25 0 0 1-.427.177l-1.38-1.38A7.001 7.001 0 0 1 .395 9.673a.75.75 0 0 1 .655-.833Z"/>
+          </svg>
+          Retrain
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <div class="PageLayout">
+    <div class="Subhead">
+      <h1 class="Subhead-heading">Network anomaly dashboard</h1>
+      <div class="Subhead-description">
+        Live flows scored by a from-scratch gradient-boosting model.
+        <span id="retrain-status" class="retrain-status"></span>
+      </div>
+    </div>
+
+    <div class="grid">
+      <!-- Live flows -->
+      <section class="Box Box--full">
+        <div class="Box-header">
+          <h2 class="Box-title">Live flows</h2>
+          <span class="Counter" id="flows-counter">0</span>
+        </div>
+        <div class="Box-body Box-body--flush">
+          <div class="table-wrap">
+            <table id="flows-table">
+              <thead>
+                <tr>
+                  <th>Time</th><th>Source</th><th>Destination</th><th>Proto</th>
+                  <th>Class</th><th>Confidence</th><th>Packets</th><th>Bytes</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- Anomaly feed -->
+      <section class="Box">
+        <div class="Box-header">
+          <h2 class="Box-title">Anomaly feed</h2>
+          <span class="Counter Counter--danger" id="anomaly-counter">0</span>
+        </div>
+        <div class="Box-body">
+          <div id="anomaly-feed" class="feed"></div>
+        </div>
+      </section>
+
+      <!-- Model metrics -->
+      <section class="Box">
+        <div class="Box-header">
+          <h2 class="Box-title">Model metrics</h2>
+        </div>
+        <div class="Box-body">
+          <div id="metrics-summary" class="metrics-summary"></div>
+          <h3 class="subtitle">Per-class precision / recall / F1</h3>
+          <div id="perclass-bars" class="bars"></div>
+          <h3 class="subtitle">Confusion matrix</h3>
+          <div id="confusion" class="confusion"></div>
+          <h3 class="subtitle">Feature importance (top 12)</h3>
+          <div id="feature-importance" class="bars"></div>
+        </div>
+      </section>
+    </div>
+
+    <footer class="footer">
+      NetGuard · from-scratch GBM · polling every <span id="poll-interval">3</span>s
+    </footer>
+  </div>
+
+  <script src="/app.js"></script>
+</body>
+</html>
