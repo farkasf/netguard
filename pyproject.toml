@@ -10,7 +10,7 @@ readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
     "numpy==2.1.3",
-    "scapy==2.6.1",
+    "scapy==2.7.0",
     "fastapi==0.115.6",
     "uvicorn[standard]==0.34.0",
     "apscheduler==3.11.0",
@@ -23,7 +23,7 @@ dependencies = [
 # imported by netguard/ml/ (enforced by tests/unit/test_purity.py).
 dev = [
     "scikit-learn==1.6.0",
-    "pytest==8.3.4",
+    "pytest==9.0.3",
     "pytest-cov==6.0.0",
     "httpx==0.28.1",
     "ruff==0.8.4",
